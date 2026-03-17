@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Matthew Weber — Home</title>
+
+  <style>
+    :root {
+      --bg: #1f1f1f;
+      --fg: rgba(255,255,255,0.95);
+      --muted: rgba(255,255,255,0.72);
+      --accent: #6ea8fe;
+      --border: rgba(255,255,255,0.14);
+      --button-bg: rgba(255,255,255,0.06);
+      --button-hover: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    body {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    #graphCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      opacity: 0.95;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(110,168,254,0.10), transparent 35%),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.04), transparent 30%),
+        linear-gradient(180deg, rgba(31,31,31,0.45), rgba(31,31,31,0.76));
+      pointer-events: none;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+    }
+
+    .content {
+      width: min(1100px, 100%);
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      align-items: center;
+      gap: 56px;
+    }
+
+    .profile-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      margin-bottom: 18px;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .name {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
+
+    .nav-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 2px;
+      font-size: 12px;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .headline {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 4vw, 3.2rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      font-weight: 760;
+    }
+
+    .subtext {
+      margin: 0 0 18px;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 250px));
+      gap: 14px;
+    }
+
+    .nav-btn {
+      text-decoration: none;
+      color: var(--fg);
+      border: 1px solid var(--border);
+      background: var(--button-bg);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+      backdrop-filter: blur(3px);
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      background: var(--button-hover);
+      border-color: rgba(110,168,254,0.34);
+    }
+
+    .nav-btn span:last-child {
+      color: var(--accent);
+      font-size: 1.02rem;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .quick-links a {
+      text-decoration: none;
+      color: var(--muted);
+      border-bottom: 1px solid transparent;
+      transition: color 120ms ease, border-color 120ms ease;
+    }
+
+    .quick-links a:hover {
+      color: var(--fg);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    @media (max-width: 860px) {
+      .content {
+        grid-template-columns: 1fr;
+        gap: 34px;
+        text-align: center;
+      }
+
+      .nav-column {
+        align-items: center;
+      }
+
+      .subtext {
+        max-width: 700px;
+      }
+
+      .button-grid {
+        grid-template-columns: 1fr;
+        width: min(420px, 100%);
+      }
+
+      .quick-links {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="graphCanvas"></canvas>
+  <div class="overlay"></div>
+
+  <main>
+    <section class="content" aria-label="Homepage introduction">
+      <div class="profile-column">
+        <div class="avatar">
+          <img src="mweber.png" alt="Matthew Weber profile photo">
+        </div>
+        <p class="name">Matthew Weber</p>
+        <p class="tagline">AI/ML | Big Data</p>
+      </div>
+
+      <div class="nav-column">
+        <p class="eyebrow">Portfolio</p>
+        <h1 class="headline">Home</h1>
+        <p class="subtext">
+          Computer Science and Applied Mathematics student working across AI, machine learning, and data science.
+        </p>
+
+        <div class="button-grid" aria-label="Main site navigation">
+          <a class="nav-btn" href="aboutme.html">
+            <span>About Me</span>
+            <span>→</span>
+          </a>
+          <a class="nav-btn" href="projects.html">
+            <span>Projects</span>
+            <span>→</span>
+          </a>
+          <a class="nav-btn" href="research.html">
+            <span>Research</span>
+            <span>→</span>
+          </a>
+          <a class="nav-btn" href="blog.html">
+            <span>Blog</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <div class="quick-links" aria-label="External links">
+          <a href="https://github.com/mweber54" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/matthew-weber-110665332/" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href="mailto:mweber54@kent.edu">Email</a>
+          <a href="mwcv.pdf" target="_blank" rel="noopener">CV</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("graphCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const CONFIG = {
+      nodeCount: 95,
+      maxSpeed: 0.42,
+      linkDist: 240,
+      repelDist: 16,
+      mouseInfluence: 170,
+      edgeAlpha: 0.32,
+      nodeAlpha: 0.92,
+      nodeRadius: [1.2, 2.5],
+      dpiScale: Math.min(window.devicePixelRatio || 1, 2),
+      minConnections: 3
+    };
+
+    const MOTION = {
+      speedScale: 76,
+      dampingPerSecond: 0.10,
+      repelStrength: 8,
+      mouseStrength: 10,
+      wanderStrength: 0.85,
+      centerPull: 0.9,
+    };
+
+    let W = 0, H = 0;
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = Math.floor(W * CONFIG.dpiScale);
+      canvas.height = Math.floor(H * CONFIG.dpiScale);
+      ctx.setTransform(CONFIG.dpiScale, 0, 0, CONFIG.dpiScale, 0, 0);
+    }
+
+    window.addEventListener("resize", resize);
+
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const nodes = Array.from({ length: CONFIG.nodeCount }, () => ({
+      x: rand(0, 1),
+      y: rand(0, 1),
+      vx: rand(-CONFIG.maxSpeed, CONFIG.maxSpeed),
+      vy: rand(-CONFIG.maxSpeed, CONFIG.maxSpeed),
+      r: rand(CONFIG.nodeRadius[0], CONFIG.nodeRadius[1])
+    }));
+
+    const mouse = { x: 0, y: 0, active: false };
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.active = true;
+    });
+
+    window.addEventListener("mouseleave", () => {
+      mouse.active = false;
+    });
+
+    let lastTime = performance.now();
+
+    function step(now = performance.now()) {
+      const dtRaw = (now - lastTime) / 1000;
+      lastTime = now;
+      const dt = Math.min(dtRaw, 0.033);
+
+      ctx.clearRect(0, 0, W, H);
+
+      const g = ctx.createRadialGradient(W * 0.35, H * 0.25, 40, W * 0.35, H * 0.25, Math.max(W, H));
+      g.addColorStop(0, "rgba(110,168,254,0.14)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+
+      for (const n of nodes) {
+        const cx = W * 0.5;
+        const cy = H * 0.5;
+        const toCenterX = cx - n.x * W;
+        const toCenterY = cy - n.y * H;
+
+        n.vx += (toCenterX / W) * MOTION.centerPull * dt;
+        n.vy += (toCenterY / H) * MOTION.centerPull * dt;
+
+        if (mouse.active) {
+          const dx = mouse.x - n.x * W;
+          const dy = mouse.y - n.y * H;
+          const d2 = dx * dx + dy * dy;
+          const R = CONFIG.mouseInfluence;
+
+          if (d2 < R * R) {
+            const d = Math.max(Math.sqrt(d2), 0.001);
+            const t = 1 - d / R;
+            const ax = (dx / d) * (MOTION.mouseStrength * t);
+            const ay = (dy / d) * (MOTION.mouseStrength * t);
+            n.vx += ax * dt;
+            n.vy += ay * dt;
+          }
+        }
+
+        n.x += (n.vx * MOTION.speedScale * dt) / W;
+        n.y += (n.vy * MOTION.speedScale * dt) / H;
+
+        if (n.x < 0) {
+          n.x = 0;
+          n.vx *= -0.9;
+        }
+        if (n.x > 1) {
+          n.x = 1;
+          n.vx *= -0.9;
+        }
+        if (n.y < 0) {
+          n.y = 0;
+          n.vy *= -0.9;
+        }
+        if (n.y > 1) {
+          n.y = 1;
+          n.vy *= -0.9;
+        }
+
+        n.vx += (Math.random() - 0.5) * MOTION.wanderStrength * dt;
+        n.vy += (Math.random() - 0.5) * MOTION.wanderStrength * dt;
+
+        const damp = Math.exp(-MOTION.dampingPerSecond * dt);
+        n.vx *= damp;
+        n.vy *= damp;
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        const ax = a.x * W;
+        const ay = a.y * H;
+
+        const distances = [];
+
+        for (let j = 0; j < nodes.length; j++) {
+          if (i === j) continue;
+          const b = nodes[j];
+          const bx = b.x * W;
+          const by = b.y * H;
+          const dx = bx - ax;
+          const dy = by - ay;
+          const d2 = dx * dx + dy * dy;
+          distances.push({ j, d2, dx, dy, bx, by });
+
+          const R = CONFIG.repelDist;
+          if (d2 < R * R) {
+            const d = Math.max(Math.sqrt(d2), 0.001);
+            const t = (R - d) / R;
+            const push = MOTION.repelStrength * t;
+            const px = (dx / d) * push;
+            const py = (dy / d) * push;
+            a.vx -= px * dt;
+            a.vy -= py * dt;
+          }
+        }
+
+        distances.sort((p, q) => p.d2 - q.d2);
+        const nearest = distances.slice(0, CONFIG.minConnections);
+
+        for (const item of nearest) {
+          if (item.j < i) continue;
+          const d = Math.sqrt(item.d2);
+          const alphaBoost = Math.max(0.18, 1 - d / CONFIG.linkDist);
+          ctx.globalAlpha = CONFIG.edgeAlpha * alphaBoost;
+          ctx.strokeStyle = "rgba(255,255,255,1)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(ax, ay);
+          ctx.lineTo(item.bx, item.by);
+          ctx.stroke();
+        }
+
+        for (const item of distances) {
+          if (item.j < i) continue;
+          if (item.d2 >= CONFIG.linkDist * CONFIG.linkDist) continue;
+          const d = Math.sqrt(item.d2);
+          const t = 1 - d / CONFIG.linkDist;
+          ctx.globalAlpha = CONFIG.edgeAlpha * t * 0.9;
+          ctx.strokeStyle = "rgba(255,255,255,1)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(ax, ay);
+          ctx.lineTo(item.bx, item.by);
+          ctx.stroke();
+        }
+      }
+
+      for (const n of nodes) {
+        ctx.globalAlpha = CONFIG.nodeAlpha;
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        ctx.beginPath();
+        ctx.arc(n.x * W, n.y * H, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(step);
+    }
+
+    resize();
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>
